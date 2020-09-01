@@ -1,27 +1,27 @@
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BOARD)
 #from gpio_placeholder import read_gpio
 #from gpio_placeholder import set_gpio
 
-def read_gpio(which):
-    return 1
-
-def set_gpio(which, what):
-    return None
-
 class Trigger:
-    def __init__(self, gpio_num, open=1, close=0):
+    def __init__(self, gpio_num, open_=GPIO.high, close_=GPIO.low):
         self.gpio = gpio_num
-        self.open=open
+        self.open_=open_
+        self.close_=close_
+
+        GPIO.setup(self.gpio, GPIO.OUT, initial=self.close_)
 
     def open(self):
-        set_gpio(self.gpio, self.open)
+        GPIO.output(self.gpio, self.open_)
     
     def close(self):
-        set_gpio(self.gpio, self.close)
+        GPIO.output(self.gpio, self.close_)
 
 
 class Sensor:
     def __init__(self, gpio_num):
         self.gpio = gpio_num
+        GPIO.setup(self.gpio, GPIO.IN)
 
     def read(self):
-        return read_gpio(self.gpio)
+        return GPIO.input(self.gpio)
