@@ -1,10 +1,21 @@
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BOARD)
-#from gpio_placeholder import read_gpio
-#from gpio_placeholder import set_gpio
+#import RPi.GPIO as GPIO
+#GPIO.setmode(GPIO.BCM)
+
+#offboard testing placeholder gpio class
+class GPIO:
+    OUT = 0
+    IN = 1
+    LOW = 0
+    HIGH = 1
+    def setup(self, pin, mode, initial):
+        pass
+    def output(self, pin, state):
+        pass
+    def input(self, pin):
+        return 0
 
 class Trigger:
-    def __init__(self, gpio_num, open_=GPIO.high, close_=GPIO.low):
+    def __init__(self, gpio_num, open_=GPIO.LOW, close_=GPIO.HIGH):
         self.gpio = gpio_num
         self.open_=open_
         self.close_=close_

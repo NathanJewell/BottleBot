@@ -1,15 +1,16 @@
 from FillStatus import FillStatus as FS
+from interact import Sensor, Trigger, jsonify, abort
+import time
 
-app = Flask(__name__, static_url_path='', static_folder='site/static')
 class Filler:
 
-    def __init__(self, name, api, force_calibration=True):
+    def __init__(self, name, config, force_calibration=True):
         self.name = name
+        self.config = config  
         self.calibrated = not force_calibration
-        self.api = api
 
     def configure_gpio(self, 
-        proximity_GPIO, fill_GPIO
+        proximity_GPIO, fill_GPIO,
         co2_GPIO, beer_GPIO):
 
         self.proximity_sensor = Sensor(proximity_GPIO)
@@ -23,24 +24,24 @@ class Filler:
         self.operating_time = 0
         self.status = FS.OFFLINE
 
-    def calibrate():
+    def calibrate(self):
         self.status = FS.CALIBRATING
         self.config.nominal_proximity_cutoff = .1
         self.config.nominal_fill_resistivity = 600
 
-    def start():
+    def start(self):
         if not self.calibrated:
             self.calibrate()
         
         while self.status != FS.OFFLINE:
             has_can = True if self.proximity_sensor.read() > self.config.nominal_proximity_cutoff else False
-            if has_can and self.status=FS.READY:
+            if has_can and self.status==FS.READY:
                 self.fill_once()
                 self.cans_filled += 1
         
-            operating_time = time.time() - operating_start
+            operating_time = time.time() - self.operating_start
     
-    def fill_once():
+    def fill_once(self):
         time.sleep(self.config.can_delay)
         #purging o2
         self.co2_selenoid.open()
@@ -57,13 +58,14 @@ class Filler:
         self.beer_selenoid.close()
         #fill is complete
         self.status = FS.COMPLETE
-        return fill.read()
+        return self.fill_sensor.read()
 
     def status_json(self):
         json = jsonify({
-            "status" : inv_status_map[machine_status],
-            "cans_filled" : str(cans_filled),
-            "operating_time" : str(operating_time)
+            "status" : self.status.__str__(),
+            "cans_filled" : str(self.cans_filled),
+            "operating_time" : str(self.operating_time),
+            "name" : self.name
         })
         return json
 
@@ -73,23 +75,3 @@ class Filler:
         except Exception as e:
             return "Invalid Status String"
         return 1
-
-
-@app.route('/stats')
-def stats():
-    return status_json()
-
-@app.route('/status', methods=['POST'])
-def onoff():
-    global machine_status
-    if not request.json or not 'status' in request.json:
-        abort(400, "No request data.")
-    try:
-        canner_status = status_map[request.json['status']]
-        machine_status = canner_status
-    except Exception as e:
-        abort(400, "Desired status not recognized")
-
-    return status_json()
-
-threading.Thread(target=app.run).start()
