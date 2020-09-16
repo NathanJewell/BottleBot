@@ -20,6 +20,7 @@ function setpanelstats(stats, name) {
         $(`#status-content-${name}`).html(stats.status);
         $(`#filled-content-${name}`).html(stats.cans_filled);
         $(`#runtime-content-${name}`).html(time_hms);
+        $(`#message-content-${name}`).html(stats.message_content);
 }
 
 function gridheaders() {
@@ -31,7 +32,8 @@ function gridheaders() {
         "Start",
         "Stop",
         "Clean",
-        "Test"
+        "Test",
+        "Message"
     ]
 }
 
@@ -44,7 +46,8 @@ function gridrow(name) {
         `<button class="start-canning pure-button button-success ${name}-row" name="${name}">Start</button>`,
         `<button class="stop-canning pure-button button-error ${name}-row" name="${name}">Stop</button>`,
         `<button class="clean-canning pure-button button-secondary ${name}-row" name="${name}">Clean</button>`,
-        `<button class="test-canning pure-button button-secondary${name}-row" name="${name}">Test</button>`
+        `<button class="test-canning pure-button button-secondary${name}-row" name="${name}">Test</button>`,
+        `<p id="message-content-${name}" class="${name}-row"></p>`
     ]
 
 }

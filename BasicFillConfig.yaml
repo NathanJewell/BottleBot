@@ -10,4 +10,33 @@ clean_time_seconds : 4
 nominal_proximity_cutoff: .1
 nominal_fill_resistivity: 600
 
+fill_node_list:
+  - One:
+    name : Lab
+    beer_gpio :  1
+    co2_gpio : 2
+    proximity_gpio : 3
+    fill_gpio : 4
+
+  - Two:
+    name : Collie
+    beer_gpio : 5
+    co2_gpio : 6
+    proximity_gpio : 7
+    fill_gpio : 8
+
+  - Three:
+    name : Poodle
+    beer_gpio : 9
+    co2_gpio : 10
+    proximity_gpio : 11
+    fill_gpio : 12
+
+  - Four:
+    name : Shepherd
+    beer_gpio : 13
+    co2_gpio : 14
+    proximity_gpio : 15
+    fill_gpio : 16
+
 

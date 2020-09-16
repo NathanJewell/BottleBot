@@ -14,6 +14,7 @@ class Filler:
         self.operating_start = time.time()
         self.operating_time = 0
         self.status = FS.OFFLINE
+        self.message_content = ""
 
         self.proximity_sensor = None
         self.fill_sensor = None
@@ -31,9 +32,74 @@ class Filler:
         self.beer_selenoid = Trigger(beer_GPIO)
 
     def calibrate(self):
-        print(self.config)
-        self.config['nominal_proximity_cutoff'] = .1
+        #start calibration
+        calibration_stage_delay_seconds = 10 #how long for human to check machine state
+        calibration_stage_time = 1 #how long to average input over
+
+        self.message_content = "Prepare to begin calibration"
+        time.sleep(calibration_stage_delay_seconds)
+        def countdown_message(text, seconds):
+            for x in range(seconds):
+                self.message_content = text.format(seconds-x)
+
+        #LOW PROXIMITY 
+        countdown_message(
+            "Remove all obstruction from proximity sensor: {}", 
+            calibration_stage_delay_seconds)
+        self.message_content = "Calibrating..."
+        start = time.time()
+        detect_max = 0
+        while (time.time() - start) < calibration_stage_time:
+            read = self.proximity_sensor.read()
+            if read > detect_max:
+                detect_max = read
+        proximity_detect_low_max = input_sum / detect_count
+
+        #HIGH PROXIMITY
+        countdown_message(
+            "Place can in proximity sensor: {}",
+            calibration_stage_delay_seconds)
+        self.message_content = "Calibrating..."
+        start = time.time()
+        detect_min = 0
+        while (time.time() - start) < calibration_stage_time:
+            read = self.proximity_sensor.read()
+            if read < detect_min:
+                detect_min = read
+        proximity_detect_high_min = input_sum / detect_count
+
+        self.config['nominal_proximity_cutoff'] = proximity_detect_low_max + (proximity_detect_high_min - proximity_detect_low_max) * .2
+
+
+        start = time.time()
+        detect_max = 0
+        while (time.time() - start) < calibration_stage_time:
+            read = self.fill_sensor.read()
+            if read > detect_max:
+                detect_max = read
+        fill_detect_low_max = input_sum / detect_count
+
+        self.message_content = "Filling to default detection level."
+        #trigger beer fill
+        self.beer_selenoid.open()
+        while self.fill_sensor.read() < self.config['nominal_fill_resistivity']:
+            pass
+        self.beer_selenoid.close()
+        countdown_message(
+            "Validate that the can is full to fill sensor: {}",
+            calibration_stage_delay_seconds)
+        #wait for fill sensor
+        start = time.time()
+        detect_min = 0
+        while (time.time() - start) < calibration_stage_time:
+            read = self.fill_sensor.read()
+            if read < detect_min:
+                detect_min = read
+        fill_detect_high_min = input_sum / detect_count
+        #validate that the can is full to sensor
         self.config['nominal_fill_resistivity'] = 600
+        #adjust timings as necessary
+        self.message_content = "Calibration Complete. Adjust delay timings as necessary."
 
     def start(self):
         if not self.calibrated:
@@ -124,7 +190,8 @@ class Filler:
             "status" : self.status.name,
             "cans_filled" : str(self.cans_filled),
             "operating_time" : str(self.operating_time),
-            "name" : self.name
+            "name" : self.name,
+            "message_content" : self.message_content
         }
         return json
 
@@ -132,7 +199,6 @@ class Filler:
         try:
             new_status = FS[status_str.upper()]
             
-            print("HERE BRO {}".format(new_status))
             #starting canning process for this filler
             if self.status == FS.OFFLINE and new_status == FS.READY:
                 self.status = FS.READY
@@ -145,6 +211,10 @@ class Filler:
             elif new_status == FS.CLEANING and self.status == FS.OFFLINE:
                 self.status = FS.CLEANING
                 self.run_thread = threading.Thread(target=self.clean)
+                self.run_thread.start()
+            elif new_status == FS.CALIBRATING and self.status == FS.OFFLINE:
+                self.status = FS.CALIBRATING
+                self.run_thread = threading.Thread(target=self.calibrate)
                 self.run_thread.start()
             elif new_status == FS.OFFLINE:
                 self.status = FS.OFFLINE
