@@ -3,14 +3,18 @@ from interact import Trigger, Sensor
 from flask import Flask, request, jsonify, abort
 import threading
 import time
+import logging
+logging.basicConfig(
+    format='%(asctime)s || %(message)s',
+    filename='machine.log', level=logging.INFO)
 
 #TODO load gpio + params config from yaml
 
 #circuit configurations
-proximity_GPIO = 1
-co2_GPIO = 2
-beer_GPIO = 3
-fill_GPIO = 4
+proximity_GPIO = 14
+co2_GPIO = 8
+beer_GPIO = 17
+fill_GPIO = 24
 
 #loop parameters
 tick_time_ms = 100 #ms
@@ -32,7 +36,8 @@ machine_status = 1
 status_map = {
     "canning" : 0,
     "ready" : 1,
-    "offline" : 2
+    "offline" : 2,
+    "cleaning" : 3
 }
 
 inv_status_map = {v: k for k, v in status_map.items()}
@@ -54,17 +59,24 @@ def start():
         operating_time = time.time() - operating_start
 
 def can_once():
-    print("Flushing O2")
+    logging.info("Flushing O2")
     co2_selenoid.open()
     co2_selenoid.close()
-    print("Now filling...")
+    logging.info("Now filling...")
     beer_selenoid.open()
     while fill.read() < nominal_fill_pressure:
         pass
     beer_selenoid.close()
-    print("Fill complete")
+    logging.info("Fill complete")
 
     return fill.read()
+
+def clean_cycle():
+    logging.info("Starting clean cycle.")
+    beer_selenoid.open()
+    time.sleep(clean_time)
+    beer_selenoid.close()
+    logging.info("Clean Cycle Completed.")
 
 def status_json():
     json = jsonify({
@@ -91,5 +103,34 @@ def onoff():
         abort(400, "Desired status not recognized")
 
     return status_json()
+
+@app.route('/logs', methods=['POST'])
+def getlogs():
+    maxlines = 10
+    timestamp = False
+    if request.json:
+        if 'maxlines' in request.json:
+            try:
+                maxlines = int(request.json['lines'])
+                if maxlines <= 0:
+                    raise Exception("Cannot have negative number of lines.")
+            except Exception as e:
+                abort(400, "Could not interpret requested number of log lines.")
+        if 'timestamp' in request.json:
+            try:
+                timestamp = bool(request.json['timestamp'])
+            except Exception as e:
+                abort(400, "Could not interpret log timestamp requirement as bool.")
+
+
+    with open("machine.log", "r") as logfile:
+        lines = logfile.readlines()
+        lines = lines[:min(maxlines, len(lines))]
+        if timestamp:
+            lines = [l.split('||')[1] for l in lines]
+        lines = jsonify({
+            'logs' : lines
+        })
+        return lines
 
 threading.Thread(target=app.run).start()
