@@ -1,44 +1,41 @@
 #import RPi.GPIO as GPIO
-#GPIO.setmode(GPIO.BOARD)
+#GPIO.setmode(GPIO.BCM)
 
+#offboard testing placeholder gpio class
 class GPIO:
-    OUT = 1
-    IN = 0
-    low = 0
-    high = 1
-    def setup(gpio, status, initial=0):
+    OUT = 0
+    IN = 1
+    LOW = 0
+    HIGH = 1
+    @staticmethod
+    def setup(pin, mode, initial=None):
         pass
-
-    def output(gpio, signal):
+    @staticmethod
+    def output(pin, state):
         pass
-
-    def input(gpio):
-        return 1
+    @staticmethod
+    def input(pin):
+        return 0
 
 class Trigger:
-    def __init__(self, gpio_num, open=GPIO.high, close=GPIO.low):
+    def __init__(self, gpio_num, open_=GPIO.LOW, close_=GPIO.HIGH):
         self.gpio = gpio_num
-        self.open=open
-        self.close=close
+        self.open_=open_
+        self.close_=close_
 
-        self.status = 0
-        GPIO.setup(self.gpio, GPIO.OUT, initial=self.close)
+        GPIO.setup(self.gpio, GPIO.OUT, initial=self.close_)
 
     def open(self):
-        GPIO.output(self.gpio, self.open)
-        self.status = 1
+        GPIO.output(self.gpio, self.open_)
     
     def close(self):
-        GPIO.output(self.gpio, self.close)
-        self.status = 0
-    
-    def status(self):
-        return self.status
+        GPIO.output(self.gpio, self.close_)
 
 
 class Sensor:
     def __init__(self, gpio_num):
         self.gpio = gpio_num
+        GPIO.setup(self.gpio, GPIO.IN)
 
         GPIO.setup(self.gpio, GPIO.IN)
 
