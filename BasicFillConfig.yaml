@@ -3,6 +3,7 @@ can_delay: 0
 purge_time_seconds: 3
 post_purge_delay: 12
 overfill_delay: .1
+clean_time_seconds : 4
 
 
 #sensor calibration

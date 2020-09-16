@@ -8,7 +8,7 @@ default_config = None
 with open(default_config_file, "r") as dconf:
     default_config = yaml.load(dconf)
 
-filler_names = ["Lab", "Collie", "Poodle"]
+filler_names = ["Lab", "Collie", "Poodle", "Shepherd"]
 
 fillers = []
 

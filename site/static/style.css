@@ -26,3 +26,17 @@
     background: rgb(66, 184, 221);
     /* this is a light blue */
 }
+
+.header-cell {
+    font-weight: bold;
+}
+
+#data-grid {
+    display: grid;
+    grid-gap: 3%;
+    width: 50%;
+}
+
+#data-grid > * {
+    border: 0px 2px 0px 2px solid rgb(0, 0, 0)
+}

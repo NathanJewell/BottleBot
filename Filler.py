@@ -73,6 +73,15 @@ class Filler:
         
             operating_time = time.time() - self.operating_start
         
+    def clean(self):
+        self.co2_selenoid.open()
+        self.beer_selenoid.open()
+        time.sleep(self.config['clean_time_seconds'])
+        self.co2_selenoid.close()
+        self.beer_selenoid.close()
+        self.status = FS.COMPLETE
+        return
+
     def test(self):
         time.sleep(self.config['can_delay'])
         #purging o2
@@ -129,9 +138,13 @@ class Filler:
                 self.status = FS.READY
                 self.run_thread = threading.Thread(target=self.start)
                 self.run_thread.start()
-            elif new_status == FS.TESTING:
+            elif new_status == FS.TESTING and self.status == FS.OFFLINE:
                 self.status = FS.TESTING
                 self.run_thread = threading.Thread(target=self.test)
+                self.run_thread.start()
+            elif new_status == FS.CLEANING and self.status == FS.OFFLINE:
+                self.status = FS.CLEANING
+                self.run_thread = threading.Thread(target=self.clean)
                 self.run_thread.start()
             elif new_status == FS.OFFLINE:
                 self.status = FS.OFFLINE
