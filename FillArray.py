@@ -24,7 +24,8 @@ for name in filler_names:
 
     fillers.append(Filler(name, config))
 
-fillerdict = dict(zip(filler_names, fillers))
+fillerdict = dict(zip([n.lower() for n in filler_names], fillers))
+print(fillerdict)
 
 app = Flask(__name__, static_url_path='', static_folder='site/static')
 
@@ -34,28 +35,49 @@ def names():
 
 @app.route('/stats/<name>')
 def stats(name):
-    if name in fillerdict:
-        return jsonifyf(fillerdict[name].status_json())
+    if name.lower() in fillerdict:
+        return jsonify(fillerdict[name.lower()].status_json())
     else:
         abort(400, "Filler with name {} does not exist.".format(name))
 
 @app.route('/status/<name>', methods=['POST'])
 def setstatus(name):
-    if name in fillerdict:
-        filler = fillerdict[name]
+    if name.lower() in fillerdict:
+        filler = fillerdict[name.lower()]
         if not request.json or not 'status' in request.json:
             abort(400, "No request data.")
         try:
-            success = filler.set_status(request.status)
+            success = filler.set_status(request.json['status'])
             if success != 1:
                 raise Exception
         except Exception as e:
-            abort(400, "Desired status not recognized")
+            abort(400, "Desired status not recognized: '{}'".format(request.json['status']))
         return jsonify(filler.status_json())
     else:
         abort(400, "Filler with name {} does not exist.".format(name))
 
-threading.Thread(target=app.run).start()
+@app.route('/trigger/<name>', methods=['POST'])
+def triggerfill(name):
+    if name.lower() in filldict:
+        filler = fillerdict[name.lower()]
+
+    else:
+        abort(400, "Filler with name {} does not exist.".format(name))
+
+@app.route('/pdb')
+def pdb():
+   """Enter python debugger in terminal"""
+
+   import sys
+   print("\n'/pdb' endpoint hit. Dropping you into python debugger. globals:")
+   print("%s\n" % dir(sys.modules[__name__]))
+   import pdb; pdb.set_trace()
+
+   return 'After PDB debugging session, now execution continues...'
+
+
+app.run()
+#threading.Thread(target=app.run).start()
 
 
 

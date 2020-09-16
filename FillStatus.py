@@ -1,8 +1,6 @@
 from enum import Enum
 
 class FillStatus(Enum):
-    def __str__(self):
-        return str(self.value)
     OFFLINE = 0
     READY = 1
     PURGING = 2
@@ -10,4 +8,5 @@ class FillStatus(Enum):
     COMPLETE = 4
     CLEANING = 10
     CALIBRATING = 20
+    TESTING = 30
     ERROR = 50

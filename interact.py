@@ -7,11 +7,14 @@ class GPIO:
     IN = 1
     LOW = 0
     HIGH = 1
-    def setup(self, pin, mode, initial):
+    @staticmethod
+    def setup(pin, mode, initial=None):
         pass
-    def output(self, pin, state):
+    @staticmethod
+    def output(pin, state):
         pass
-    def input(self, pin):
+    @staticmethod
+    def input(pin):
         return 0
 
 class Trigger:
