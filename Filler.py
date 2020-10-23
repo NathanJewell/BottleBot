@@ -190,13 +190,13 @@ class Filler:
         start_topoff = 0
         fillcycle = True
         while fillcycle: 
-            if (self.fill_sensor.read() < self.config['nominal_fill_resistivity']):
+            if (self.fill_sensor.read() > self.config['nominal_fill_resistivity']):
                 self.beer_selenoid.close()
+                start_topoff = time.time()
+                topping_off = True
             else:
                 self.beer_selenoid.open()
-                if not topping_off:
-                    start_topoff = time.time()
-                elif time.time() - start_topoff > self.topoff_time:
+                if topping_off and time.time() - start_topoff > self.topoff_time:
                     fillcycle = False
         time.sleep(self.config['overfill_delay'])
         self.beer_selenoid.close()
