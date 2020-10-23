@@ -25,4 +25,8 @@ filler_list:
       beer_gpio :  3
       proximity_gpio : 11
       fill_gpio : 23
-
+  -   name : Collie
+      co2_gpio : 4
+      beer_gpio : 17
+      proximity_gpio : 5
+      fill_gpio : 24

@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify, abort
 import threading
 import sys
 
-default_config_file = sys.argv[1] if len(sys.argv) > 2 else "BasicFillConfig.yaml"
+default_config_file = sys.argv[1] if len(sys.argv) > 1 else "BasicFillConfig.yaml"
 default_config = None
 with open(default_config_file, "r") as dconf:
     default_config = yaml.load(dconf)
