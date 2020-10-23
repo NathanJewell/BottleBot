@@ -111,6 +111,8 @@ class Filler:
             #self.status = FS.READY
         
         proximity_sensitivity = 10 #number of readings before we consider reading
+        proximity_decision_count = 10
+        proximity_last_read = False
         proximity_decision_ratio = .8 #x% of readings in timeframe must match
         proximity_pos_cnt = 0 #in proximity
         proximity_read_cnt = 0 #detections
@@ -119,18 +121,14 @@ class Filler:
             if self.status == FS.OFFLINE: #force thread exit
                 return
             proximity_reading = True if self.proximity_sensor.read() < self.config['nominal_proximity_cutoff'] else False
-            if proximity_read_cnt < proximity_sensitivity:
-                proximity_read_cnt += 1
-                proximity_pos_cnt += proximity_reading
+            if proximity_reading == proximity_last_read:
+                proximity_decision_count += 1
             else:
-                ratio = (proximity_pos_cnt / proximity_read_cnt)
-                has_can = None
-                if ratio > proximity_decision_ratio:
-                    has_can = True
-                elif ratio < (1-proximity_decision_ratio):
-                    has_can = False
-                else:
-                    break
+                proximity_decision_count = 1
+                proximity_last_read = proximity_reading
+
+            if proximity_decision_count >= proximity_sensitivity:
+                has_can = proximity_last_read
 
                 if has_can and self.status==FS.READY:
                     self.fill_once()
