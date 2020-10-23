@@ -70,6 +70,11 @@ function statuspost(status, name) {
     $.ajax({
         type : "POST",
         url : `${base_path}status/${name}`,
+        headers : {
+            'Access-Control-Request-Method': 'POST',
+            'Access-Control-Request-Headers': '*',
+            'Access-Control-Allow-Origin' : '*'
+        },
         data: JSON.stringify(data),
         contentType : "application/json; charset=utf-8",
         dataType : "json",

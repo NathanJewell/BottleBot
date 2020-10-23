@@ -1,0 +1,19 @@
+#default delays
+can_delay: 0
+purge_time_seconds: 3
+post_purge_delay: 12
+overfill_delay: .1
+clean_time_seconds : 4
+
+
+#default sensor calibration
+nominal_proximity_cutoff: .1
+nominal_fill_resistivity: 600
+
+fill_node_list:
+  - One:
+      name : Lab
+      beer_gpio :  3
+      co2_gpio : 5
+      proximity_gpio : 23
+      fill_gpio : 16

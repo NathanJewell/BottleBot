@@ -31,6 +31,11 @@ class Filler:
         self.co2_selenoid = Trigger(co2_GPIO)
         self.beer_selenoid = Trigger(beer_GPIO)
 
+    def countdown_message(self, text, seconds):
+        for x in range(seconds):
+            self.message_content = text.format(seconds-x)
+            time.sleep(1)
+
     def calibrate(self):
         #start calibration
         calibration_stage_delay_seconds = 10 #how long for human to check machine state
@@ -38,13 +43,11 @@ class Filler:
 
         self.message_content = "Prepare to begin calibration"
         time.sleep(calibration_stage_delay_seconds)
-        def countdown_message(text, seconds):
-            for x in range(seconds):
-                self.message_content = text.format(seconds-x)
+        self.message_content = "Prepare to yeet calibration"
 
         #LOW PROXIMITY 
-        countdown_message(
-            "Remove all obstruction from proximity sensor: {}", 
+        self.countdown_message(
+            "Remove all obstructions from proximity sensor: {}", 
             calibration_stage_delay_seconds)
         self.message_content = "Calibrating..."
         start = time.time()
@@ -56,7 +59,7 @@ class Filler:
         proximity_detect_low_max = input_sum / detect_count
 
         #HIGH PROXIMITY
-        countdown_message(
+        self.countdown_message(
             "Place can in proximity sensor: {}",
             calibration_stage_delay_seconds)
         self.message_content = "Calibrating..."
@@ -85,7 +88,7 @@ class Filler:
         while self.fill_sensor.read() < self.config['nominal_fill_resistivity']:
             pass
         self.beer_selenoid.close()
-        countdown_message(
+        self.countdown_message(
             "Validate that the can is full to fill sensor: {}",
             calibration_stage_delay_seconds)
         #wait for fill sensor
@@ -140,11 +143,16 @@ class Filler:
             operating_time = time.time() - self.operating_start
         
     def clean(self):
+        self.message_content = "Starting Cleaning Cycle"
+        time.sleep(1)
+        message = "Cleaning time remaining: {}"
         self.co2_selenoid.open()
         self.beer_selenoid.open()
         time.sleep(self.config['clean_time_seconds'])
+        self.countdown_message(message, self.config['clean_time_seconds'])
         self.co2_selenoid.close()
         self.beer_selenoid.close()
+        self.message_content = "Cleaning Complete"
         self.status = FS.COMPLETE
         return
 
@@ -186,6 +194,7 @@ class Filler:
         return self.fill_sensor.read()
 
     def status_json(self):
+        print(self.message_content)
         json = {
             "status" : self.status.name,
             "cans_filled" : str(self.cans_filled),

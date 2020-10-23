@@ -2,27 +2,30 @@ import yaml
 from Filler import Filler
 from flask import Flask, request, jsonify, abort
 import threading
+import sys
 
-default_config_file = "BasicFillConfig.yaml"
+default_config_file = sys.argv[1] if len(sys.argv) > 2 else "BasicFillConfig.yaml"
 default_config = None
 with open(default_config_file, "r") as dconf:
     default_config = yaml.load(dconf)
 
-filler_names = ["Lab", "Collie", "Poodle", "Shepherd"]
+filler_names = [k['name'] for k in default_config["filler_list"]]
 
 fillers = []
+pin_order = ["proximity_gpio", "fill_gpio", "co2_gpio", "beer_gpio"]
 
-for name in filler_names:
+for nameindex, name in enumerate(filler_names):
     config = None
     try:
         #found existing config for ("name")
-        with open("config/{}_config.yaml".format(name), "r") as specific_config:
+        with open("config/{}.yaml".format(name), "r") as specific_config:
             config = yaml.load(specific_config)
     except Exception as e:
         #no config found
         config = default_config
 
-    fillers.append(Filler(name, config))
+    pins = [default_config["filler_list"][nameindex][pin_name] for pin_name in pin_order]
+    fillers.append(Filler(name, config, pins))
 
 fillerdict = dict(zip([n.lower() for n in filler_names], fillers))
 print(fillerdict)
@@ -75,6 +78,12 @@ def pdb():
 
    return 'After PDB debugging session, now execution continues...'
 
+@app.after_request # blueprint can also be app~~
+def after_request(response):
+    header = response.headers
+    header['Access-Control-Allow-Origin'] = '*'
+    header['Access-Control-Allow-Headers'] = '*'
+    return response
 
 app.run()
 #threading.Thread(target=app.run).start()
