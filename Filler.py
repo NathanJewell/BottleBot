@@ -112,7 +112,7 @@ class Filler:
         
         proximity_sensitivity = 10 #number of readings before we consider reading
         proximity_decision_count = 10
-        proximity_last_read = False
+        proximity_last_read = None
         proximity_decision_ratio = .8 #x% of readings in timeframe must match
         proximity_pos_cnt = 0 #in proximity
         proximity_read_cnt = 0 #detections
@@ -129,13 +129,15 @@ class Filler:
 
             if proximity_decision_count >= proximity_sensitivity:
                 has_can = proximity_last_read
+                proximity_decision_count = 0
+                proximity_last_read = None
 
                 if has_can and self.status==FS.READY:
                     self.fill_once()
                     self.cans_filled += 1
                 elif not has_can and self.status==FS.COMPLETE:
                     #can was removed and we can start to look for a new one
-                    self.status == FS.READY
+                    self.status = FS.READY
 
         
             operating_time = time.time() - self.operating_start
