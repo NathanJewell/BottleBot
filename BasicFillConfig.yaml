@@ -21,28 +21,28 @@ priximity_decision_ration: .8
 
 filler_list:
   -   name : Lab
+      co2_gpio : 2
       beer_gpio :  3
-      co2_gpio : 5
-      proximity_gpio : 23
-      fill_gpio : 16
+      proximity_gpio : 11
+      fill_gpio : 23
 
   -   name : Collie
-      beer_gpio : 7
-      co2_gpio : 11
-      proximity_gpio : 29
-      fill_gpio : 18
+      co2_gpio : 4
+      beer_gpio : 17
+      proximity_gpio : 5
+      fill_gpio : 24
 
   -   name : Poodle
-      beer_gpio : 13
-      co2_gpio : 15
-      proximity_gpio : 31
-      fill_gpio : 22
+      co2_gpio : 27
+      beer_gpio : 22
+      proximity_gpio : 6
+      fill_gpio : 25
 
   -   name : Shepherd
-      beer_gpio : 19
-      co2_gpio : 21
-      proximity_gpio : 33
-      fill_gpio : 24
+      co2_gpio : 10
+      beer_gpio : 9
+      proximity_gpio : 11
+      fill_gpio : 8
 
 
 # GPIO    PIN   Function

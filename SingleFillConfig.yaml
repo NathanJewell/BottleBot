@@ -1,19 +1,28 @@
 #default delays
-can_delay: 0
-purge_time_seconds: 3
-post_purge_delay: 12
-overfill_delay: .1
+can_delay: 0  #wait time after detecting can placement
+purge_time_seconds: 3 #seconds to purge can with co2
+post_purge_delay: 1 #seconds to wait before starting beer fill
+overfill_delay: .1  #seconds to wait before stopping beef flow after fill sensor triggers
 clean_time_seconds : 4
 
 
 #default sensor calibration
-nominal_proximity_cutoff: .1
-nominal_fill_resistivity: 600
+nominal_proximity_cutoff: .1    #value when prox. sensor is considered HIGH
+nominal_fill_resistivity: 600   #value when fill sensor is considered HIGH
 
-fill_node_list:
-  - One:
-      name : Lab
+#calibration delays
+calibration_stage_delay_seconds: 10
+calibration_stage_time: 1
+
+
+#proximity settings
+proximity_sensitivity: 10
+priximity_decision_ration: .8
+
+filler_list:
+  -   name : Lab
+      co2_gpio : 2
       beer_gpio :  3
-      co2_gpio : 5
-      proximity_gpio : 23
-      fill_gpio : 16
+      proximity_gpio : 11
+      fill_gpio : 23
+
