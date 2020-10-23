@@ -185,8 +185,19 @@ class Filler:
         #filling beer
         self.beer_selenoid.open()
         self.status = FS.FILLING
-        while self.fill_sensor.read() < self.config['nominal_fill_resistivity']:
-            pass
+        self.topoff_time = self.config['topoff_time']
+        topping_off = False
+        start_topoff = 0
+        fillcycle = True
+        while fillcycle: 
+            if (self.fill_sensor.read() < self.config['nominal_fill_resistivity']):
+                self.beer_selenoid.close()
+            else:
+                self.beer_selenoid.open()
+                if not topping_off:
+                    start_topoff = time.time()
+                elif time.time() - start_topoff > self.topoff_time:
+                    fillcycle = False
         time.sleep(self.config['overfill_delay'])
         self.beer_selenoid.close()
         #fill is complete
@@ -226,6 +237,8 @@ class Filler:
                 self.run_thread = threading.Thread(target=self.calibrate)
                 self.run_thread.start()
             elif new_status == FS.OFFLINE:
+                self.beer_selenoid.close()
+                self.co2_selenoid.close()
                 self.status = FS.OFFLINE
                 self.run_thread.join(1000)
                 if self.run_thread.is_alive():

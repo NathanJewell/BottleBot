@@ -4,6 +4,7 @@ purge_time_seconds: 2.5 #seconds to purge can with co2
 post_purge_delay: 0 #seconds to wait before starting beer fill
 overfill_delay: 0  #seconds to wait before stopping beef flow after fill sensor triggers
 clean_time_seconds : 5
+topoff_time: 1
 
 
 #default sensor calibration
