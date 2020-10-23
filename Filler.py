@@ -146,11 +146,11 @@ class Filler:
         self.message_content = "Starting Cleaning Cycle"
         time.sleep(1)
         message = "Cleaning time remaining: {}"
-        self.co2_selenoid.open()
+        #self.co2_selenoid.open()
         self.beer_selenoid.open()
         time.sleep(self.config['clean_time_seconds'])
         self.countdown_message(message, self.config['clean_time_seconds'])
-        self.co2_selenoid.close()
+        #self.co2_selenoid.close()
         self.beer_selenoid.close()
         self.message_content = "Cleaning Complete"
         self.status = FS.COMPLETE

@@ -18,7 +18,7 @@ status_colors = {
 function setpanelstats(stats, name) {
         time_hms = new Date(stats.operating_time * 1000).toISOString().substr(11, 8)
         $(`#status-content-${name}`).html(stats.status);
-        $(`#filled-content-${name}`).html(stats.cans_filled);
+        $(`#filled-content-${name}`).html(stats.cans_filled.toString();
         $(`#runtime-content-${name}`).html(time_hms);
         $(`#message-content-${name}`).html(stats.message_content);
 }
