@@ -7,8 +7,8 @@ clean_time_seconds : 4
 
 
 #default sensor calibration
-nominal_proximity_cutoff: .1    #value when prox. sensor is considered HIGH
-nominal_fill_resistivity: 600   #value when fill sensor is considered HIGH
+nominal_proximity_cutoff: .5    #value when prox. sensor transitions from CLOSE(0) to OPEN(1)
+nominal_fill_resistivity: .5   #value when fill sensor is considered HIGH
 
 #calibration delays
 calibration_stage_delay_seconds: 10
