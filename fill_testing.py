@@ -17,7 +17,7 @@ sensors_ordered = [fill_a, fill_b, fill_c, fill_d]
 while True:
     output_str = ""
     for idx, sensor in enumerate(sensors_ordered):
-        output_str += f"IDX: {sensor.Read()} \t"
+        output_str += f"{idx}: {sensor.Read()} \t"
 
 
          
